@@ -1,8 +1,8 @@
 package main
 
 import (
-	SDK "github.com/advwacloud/WISEPaaS.SCADA.Go.SDK"
 	"fmt"
+	SDK "github.com/advwacloud/WISEPaaS.SCADA.Go.SDK"
 	"math/rand"
 	"runtime"
 	"time"
@@ -12,8 +12,8 @@ func main() {
 
 	go func() {
 		for {
-			NumGoroutine := runtime.NumGoroutine()
-			fmt.Println("goroutine num = %d", NumGoroutine)
+			runtime.NumGoroutine()
+			// fmt.Printf("goroutine num = %d\n", NumGoroutine)
 			time.Sleep(5 * time.Second)
 		}
 	}()
@@ -21,11 +21,11 @@ func main() {
 	quit := make(chan bool)
 
 	options := SDK.NewEdgeAgentOptions()
-	options.ScadaID = "7oLtVmrNb8bo"
+	options.ScadaID = "e00a7bc7-f923-4297-a5f1-893929efc52d"
 	options.ConnectType = SDK.ConnectType["DCCS"]
-	options.DCCS.Key = "36fbfc44ba6ff7115dd17c179b0cb3fm"
+	options.DCCS.Key = "0ef900625dde12cc6fb0675ae7738d6j"
 	options.DCCS.URL = "https://api-dccs.wise-paas.com/"
-
+	
 	interval := 1
 	var timer chan bool = nil
 
@@ -48,15 +48,30 @@ func main() {
 	agent.SetOnDisconnectHandler(func(a SDK.Agent) {
 		fmt.Println("disconnect successfully")
 	})
-	agent.SetOnMessageReceiveHandler(func(res SDK.MessageReceivedEventArgs) {
-		fmt.Println(res)
+	agent.SetOnMessageReceiveHandler(func(args SDK.MessageReceivedEventArgs) {
+		msgType := args.Type
+		message := args.Message
+		switch msgType {
+			case SDK.MessageType["WriteValue"]: // message format: WriteDataMessage
+				for _, device := range message.(SDK.WriteDataMessage).DeviceList {
+					fmt.Println("DeviceId: ", device.ID)
+					for _, tag := range device.TagList {
+						fmt.Println("TagName: ", tag.Name, ", Value: ", tag.Value)
+					}
+				}
+			case SDK.MessageType["ConfigAck"]: // message format: ConfigAckMessage
+				fmt.Println(message.(SDK.ConfigAckMessage).Result)
+			case SDK.MessageType["TimeSync"]: //message format: TimeSyncMessage
+				fmt.Println(message.(SDK.TimeSyncMessage).UTCTime)
+		}
 	})
 
-	agent.Connect()
-
+	err := agent.Connect()
+	if err != nil {
+		fmt.Println(err)
+	}
 	<-quit
 }
-
 
 func generateConfig() SDK.EdgeConfig {
 	scadaConfig := generateScadaConfig()
@@ -67,11 +82,9 @@ func generateConfig() SDK.EdgeConfig {
 }
 
 func generateScadaConfig() SDK.ScadaConfig {
-	var scadaName = "Test SCADA"
 	var deviceNum = 1
 
-	scadaConfig := SDK.NewScadaConfig(scadaName)
-	scadaConfig.SetDescription("For Test")
+	scadaConfig := SDK.NewScadaConfig()
 	scadaConfig.SetType(SDK.EdgeType["Gateway"])
 
 	for idx := 0; idx < deviceNum; idx++ {
@@ -178,7 +191,7 @@ func generateData() SDK.EdgeData {
 			t := SDK.EdgeTag{
 				DeviceID: deviceID,
 				TagName:  fmt.Sprintf("%s%d", "TTag", num+1),
-				Value:    fmt.Sprintf("%s", "Test", num+1),
+				Value:    fmt.Sprintf("%s%d", "Test", num+1),
 			}
 			msg.TagList = append(msg.TagList, t)
 		}
