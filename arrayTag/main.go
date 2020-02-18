@@ -1,7 +1,7 @@
 package main
 
 import (
-	SDK "github.com/advwacloud/WISEPaaS.SCADA.Go.SDK"
+	SDK "github.com/advwacloud/WISEPaaS.DataHub.Edge.Go.SDK"
 	"fmt"
 	"math/rand"
 	"time"
@@ -11,7 +11,7 @@ func main() {
 	quit := make(chan bool)
 
 	options := SDK.NewEdgeAgentOptions()
-	options.ScadaID = "9eb2bbe4-6833-45ff-b884-297be549c5cc"
+	options.NodeID = "9eb2bbe4-6833-45ff-b884-297be549c5cc"
 	options.ConnectType = SDK.ConnectType["DCCS"]
 	options.DCCS.Key = "9ba5b0eace39c528dd6c095e15de2ere"
 	options.DCCS.URL = "https://api-dccs.wise-paas.com/"
@@ -126,30 +126,27 @@ func setInterval(someFunc func(), seconds int, async bool) chan bool {
 }
 
 func generateConfig() SDK.EdgeConfig {
-	scadaConfig := generateScadaConfig()
+	nodeConfig := generateNodeConfig()
 	edgeConfig := SDK.EdgeConfig{
-		Scada: scadaConfig,
+		Node: nodeConfig,
 	}
 	return edgeConfig
 }
 
-func generateScadaConfig() SDK.ScadaConfig {
-	var scadaName = "Test_Scada"
+func generateNodeConfig() SDK.NodeConfig {
+	var nodeName = "Test_Node"
 	var deviceNum = 1
 
-	scadaConfig := SDK.NewScadaConfig(scadaName)
-	scadaConfig.SetDescription("For Test")
-	scadaConfig.SetPrimaryIP("127.0.0.1")
-	scadaConfig.SetPrimaryPort(3)
-	scadaConfig.SetScadaType(SDK.EdgeType["Gateway"])
-	scadaConfig.SetPrimaryIP("255.255.255.255")
+	nodeConfig := SDK.NewNodeConfig(nodeName)
+	nodeConfig.SetDescription("For Test")
+	nodeConfig.SetNodeType(SDK.EdgeType["Gateway"])
 
 	for idx := 0; idx < deviceNum; idx++ {
 		config := generateDeviceConfig(idx + 1)
-		scadaConfig.DeviceList = append(scadaConfig.DeviceList, config)
+		nodeConfig.DeviceList = append(nodeConfig.DeviceList, config)
 	}
 
-	return scadaConfig
+	return nodeConfig
 }
 
 func generateDeviceConfig(idx int) SDK.DeviceConfig {
@@ -160,11 +157,8 @@ func generateDeviceConfig(idx int) SDK.DeviceConfig {
 
 	deviceConfig := SDK.NewDeviceConfig(deviceID)
 	deviceConfig.SetDeviceName(fmt.Sprintf("%s%d", "Device", idx))
-	deviceConfig.SetDeviceComPortNumber(3)
 	deviceConfig.SetDeviceType("Smart Device")
 	deviceConfig.SetDeviceDescription(fmt.Sprintf("%s %d", "Device ", idx))
-	deviceConfig.SetDeviceIP("127.0.0.1")
-	deviceConfig.SetDevicePort(123)
 
 	for idx := 0; idx < analogNum; idx++ {
 		config := generateAnalogConfig(idx + 1)

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	SDK "github.com/advwacloud/WISEPaaS.SCADA.Go.SDK"
+	SDK "github.com/advwacloud/WISEPaaS.DataHub.Edge.Go.SDK"
 	"math/rand"
 	"runtime"
 	"time"
@@ -21,9 +21,9 @@ func main() {
 	quit := make(chan bool)
 
 	options := SDK.NewEdgeAgentOptions()
-	options.ScadaID = "e00a7bc7-f923-4297-a5f1-893929efc52d"
+	options.NodeID = "6c3d9606-beaa-4862-8e7b-37563cb9744c"
 	options.ConnectType = SDK.ConnectType["DCCS"]
-	options.DCCS.Key = "0ef900625dde12cc6fb0675ae7738d6j"
+	options.DCCS.Key = "459acec0a7d1dc0e9e40ba27afd8a5mx"
 	options.DCCS.URL = "https://api-dccs.wise-paas.com/"
 	
 	interval := 1
@@ -74,24 +74,24 @@ func main() {
 }
 
 func generateConfig() SDK.EdgeConfig {
-	scadaConfig := generateScadaConfig()
+	nodeConfig := generateNodeConfig()
 	edgeConfig := SDK.EdgeConfig{
-		Scada: scadaConfig,
+		Node: nodeConfig,
 	}
 	return edgeConfig
 }
 
-func generateScadaConfig() SDK.ScadaConfig {
+func generateNodeConfig() SDK.NodeConfig {
 	var deviceNum = 1
 
-	scadaConfig := SDK.NewScadaConfig()
-	scadaConfig.SetType(SDK.EdgeType["Gateway"])
+	nodeConfig := SDK.NewNodeConfig()
+	nodeConfig.SetType(SDK.EdgeType["Gateway"])
 
 	for idx := 0; idx < deviceNum; idx++ {
 		config := generateDeviceConfig(idx + 1)
-		scadaConfig.DeviceList = append(scadaConfig.DeviceList, config)
+		nodeConfig.DeviceList = append(nodeConfig.DeviceList, config)
 	}
-	return scadaConfig
+	return nodeConfig
 }
 
 func generateDeviceConfig(idx int) SDK.DeviceConfig {
@@ -177,6 +177,7 @@ func generateData() SDK.EdgeData {
 				TagName:  fmt.Sprintf("%s%d", "ATag", num+1),
 				Value:    rand.Float64(),
 			}
+			fmt.Println(rand.Float64())
 			msg.TagList = append(msg.TagList, t)
 		}
 		for num := 0; num < discreteNum; num++ {
