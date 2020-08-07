@@ -22,12 +22,13 @@ func main() {
 	quit := make(chan bool)
 
 	options := SDK.NewEdgeAgentOptions()
-	options.NodeID = "7654a6d2-7d1a-4b56-b397-f49555bc4160"
+  
+  options.DataRecover = true
+	options.NodeID = "6c3d9606-beaa-4862-8e7b-37563cb9744c"
 	options.ConnectType = SDK.ConnectType["DCCS"]
-	options.DCCS.Key = "3528b8a09d6314169e200e412b588d4r"
-	options.DCCS.URL = "https://api-dccs-ensaas.sa.wise-paas.com/"
-	options.DataRecover = true
-
+	options.DCCS.Key = "459acec0a7d1dc0e9e40ba27afd8a5mx"
+	options.DCCS.URL = "https://api-dccs.wise-paas.com/"
+	
 	interval := 1
 	var timer chan bool = nil
 
@@ -182,7 +183,8 @@ func generateData() SDK.EdgeData {
 				TagName:  fmt.Sprintf("%s%d", "ATag", num+1),
 				Value:    rand.Float64(),
 			}
-			//fmt.Println(rand.Float64())
+		  //fmt.Println(rand.Float64())
+
 			msg.TagList = append(msg.TagList, t)
 		}
 		for num := 0; num < discreteNum; num++ {
