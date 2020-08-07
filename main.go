@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	SDK "github.com/advwacloud/WISEPaaS.SCADA.Go.SDK"
 	"math/rand"
 	"runtime"
 	"time"
+
+	SDK "github.com/advwacloud/WISEPaaS.DataHub.Edge.Go.SDK"
 )
 
 func main() {
@@ -21,11 +22,12 @@ func main() {
 	quit := make(chan bool)
 
 	options := SDK.NewEdgeAgentOptions()
-	options.ScadaID = "e00a7bc7-f923-4297-a5f1-893929efc52d"
+	options.NodeID = "7654a6d2-7d1a-4b56-b397-f49555bc4160"
 	options.ConnectType = SDK.ConnectType["DCCS"]
-	options.DCCS.Key = "0ef900625dde12cc6fb0675ae7738d6j"
-	options.DCCS.URL = "https://api-dccs.wise-paas.com/"
-	
+	options.DCCS.Key = "3528b8a09d6314169e200e412b588d4r"
+	options.DCCS.URL = "https://api-dccs-ensaas.sa.wise-paas.com/"
+	options.DataRecover = true
+
 	interval := 1
 	var timer chan bool = nil
 
@@ -42,7 +44,10 @@ func main() {
 
 		timer = setInterval(func() {
 			data := generateData()
-			_ = agent.SendData(data)
+			ok := agent.SendData(data)
+			if ok {
+				fmt.Println(data)
+			}
 		}, interval, true)
 	})
 	agent.SetOnDisconnectHandler(func(a SDK.Agent) {
@@ -52,17 +57,17 @@ func main() {
 		msgType := args.Type
 		message := args.Message
 		switch msgType {
-			case SDK.MessageType["WriteValue"]: // message format: WriteDataMessage
-				for _, device := range message.(SDK.WriteDataMessage).DeviceList {
-					fmt.Println("DeviceId: ", device.ID)
-					for _, tag := range device.TagList {
-						fmt.Println("TagName: ", tag.Name, ", Value: ", tag.Value)
-					}
+		case SDK.MessageType["WriteValue"]: // message format: WriteDataMessage
+			for _, device := range message.(SDK.WriteDataMessage).DeviceList {
+				fmt.Println("DeviceId: ", device.ID)
+				for _, tag := range device.TagList {
+					fmt.Println("TagName: ", tag.Name, ", Value: ", tag.Value)
 				}
-			case SDK.MessageType["ConfigAck"]: // message format: ConfigAckMessage
-				fmt.Println(message.(SDK.ConfigAckMessage).Result)
-			case SDK.MessageType["TimeSync"]: //message format: TimeSyncMessage
-				fmt.Println(message.(SDK.TimeSyncMessage).UTCTime)
+			}
+		case SDK.MessageType["ConfigAck"]: // message format: ConfigAckMessage
+			fmt.Println(message.(SDK.ConfigAckMessage).Result)
+		case SDK.MessageType["TimeSync"]: //message format: TimeSyncMessage
+			fmt.Println(message.(SDK.TimeSyncMessage).UTCTime)
 		}
 	})
 
@@ -74,24 +79,24 @@ func main() {
 }
 
 func generateConfig() SDK.EdgeConfig {
-	scadaConfig := generateScadaConfig()
+	nodeConfig := generateNodeConfig()
 	edgeConfig := SDK.EdgeConfig{
-		Scada: scadaConfig,
+		Node: nodeConfig,
 	}
 	return edgeConfig
 }
 
-func generateScadaConfig() SDK.ScadaConfig {
+func generateNodeConfig() SDK.NodeConfig {
 	var deviceNum = 1
 
-	scadaConfig := SDK.NewScadaConfig()
-	scadaConfig.SetType(SDK.EdgeType["Gateway"])
+	nodeConfig := SDK.NewNodeConfig()
+	nodeConfig.SetType(SDK.EdgeType["Gateway"])
 
 	for idx := 0; idx < deviceNum; idx++ {
 		config := generateDeviceConfig(idx + 1)
-		scadaConfig.DeviceList = append(scadaConfig.DeviceList, config)
+		nodeConfig.DeviceList = append(nodeConfig.DeviceList, config)
 	}
-	return scadaConfig
+	return nodeConfig
 }
 
 func generateDeviceConfig(idx int) SDK.DeviceConfig {
@@ -177,6 +182,7 @@ func generateData() SDK.EdgeData {
 				TagName:  fmt.Sprintf("%s%d", "ATag", num+1),
 				Value:    rand.Float64(),
 			}
+			//fmt.Println(rand.Float64())
 			msg.TagList = append(msg.TagList, t)
 		}
 		for num := 0; num < discreteNum; num++ {
