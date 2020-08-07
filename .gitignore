@@ -5,6 +5,9 @@
 *.so
 *.dylib
 .vscode
+go.sum
+*.json
+*.sqlite
 
 # Test binary, built with `go test -c`
 *.test

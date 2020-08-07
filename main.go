@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	SDK "github.com/advwacloud/WISEPaaS.DataHub.Edge.Go.SDK"
 	"math/rand"
 	"runtime"
 	"time"
+
+	SDK "github.com/advwacloud/WISEPaaS.DataHub.Edge.Go.SDK"
 )
 
 func main() {
@@ -21,6 +22,8 @@ func main() {
 	quit := make(chan bool)
 
 	options := SDK.NewEdgeAgentOptions()
+  
+  options.DataRecover = true
 	options.NodeID = "6c3d9606-beaa-4862-8e7b-37563cb9744c"
 	options.ConnectType = SDK.ConnectType["DCCS"]
 	options.DCCS.Key = "459acec0a7d1dc0e9e40ba27afd8a5mx"
@@ -42,7 +45,10 @@ func main() {
 
 		timer = setInterval(func() {
 			data := generateData()
-			_ = agent.SendData(data)
+			ok := agent.SendData(data)
+			if ok {
+				fmt.Println(data)
+			}
 		}, interval, true)
 	})
 	agent.SetOnDisconnectHandler(func(a SDK.Agent) {
@@ -52,17 +58,17 @@ func main() {
 		msgType := args.Type
 		message := args.Message
 		switch msgType {
-			case SDK.MessageType["WriteValue"]: // message format: WriteDataMessage
-				for _, device := range message.(SDK.WriteDataMessage).DeviceList {
-					fmt.Println("DeviceId: ", device.ID)
-					for _, tag := range device.TagList {
-						fmt.Println("TagName: ", tag.Name, ", Value: ", tag.Value)
-					}
+		case SDK.MessageType["WriteValue"]: // message format: WriteDataMessage
+			for _, device := range message.(SDK.WriteDataMessage).DeviceList {
+				fmt.Println("DeviceId: ", device.ID)
+				for _, tag := range device.TagList {
+					fmt.Println("TagName: ", tag.Name, ", Value: ", tag.Value)
 				}
-			case SDK.MessageType["ConfigAck"]: // message format: ConfigAckMessage
-				fmt.Println(message.(SDK.ConfigAckMessage).Result)
-			case SDK.MessageType["TimeSync"]: //message format: TimeSyncMessage
-				fmt.Println(message.(SDK.TimeSyncMessage).UTCTime)
+			}
+		case SDK.MessageType["ConfigAck"]: // message format: ConfigAckMessage
+			fmt.Println(message.(SDK.ConfigAckMessage).Result)
+		case SDK.MessageType["TimeSync"]: //message format: TimeSyncMessage
+			fmt.Println(message.(SDK.TimeSyncMessage).UTCTime)
 		}
 	})
 
@@ -177,7 +183,8 @@ func generateData() SDK.EdgeData {
 				TagName:  fmt.Sprintf("%s%d", "ATag", num+1),
 				Value:    rand.Float64(),
 			}
-			fmt.Println(rand.Float64())
+		  //fmt.Println(rand.Float64())
+
 			msg.TagList = append(msg.TagList, t)
 		}
 		for num := 0; num < discreteNum; num++ {
