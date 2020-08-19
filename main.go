@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"runtime"
 	"time"
 
@@ -22,13 +21,18 @@ func main() {
 	quit := make(chan bool)
 
 	options := SDK.NewEdgeAgentOptions()
-  
-  options.DataRecover = true
-	options.NodeID = "6c3d9606-beaa-4862-8e7b-37563cb9744c"
+	options.NodeID = "7654a6d2-7d1a-4b56-b397-f49555bc4160"
 	options.ConnectType = SDK.ConnectType["DCCS"]
-	options.DCCS.Key = "459acec0a7d1dc0e9e40ba27afd8a5mx"
-	options.DCCS.URL = "https://api-dccs.wise-paas.com/"
-	
+	options.DCCS.Key = "3528b8a09d6314169e200e412b588d4r"
+	options.DCCS.URL = "https://api-dccs-ensaas.sa.wise-paas.com/"
+	options.DataRecover = true
+
+	// options := SDK.NewEdgeAgentOptions()
+	// options.ConnectType = SDK.ConnectType["MQTT"]
+	// options.DataRecover = true
+	// options.MQTT.HostName = "127.0.0.1"
+	// options.MQTT.Port = 1883
+
 	interval := 1
 	var timer chan bool = nil
 
@@ -166,7 +170,11 @@ func generateTextConfig(idx int) SDK.TextTagConfig {
 	return config
 }
 
+var numF float64
+var numI int
+
 func generateData() SDK.EdgeData {
+	numF += 1
 	deviceNum := 1
 	msg := SDK.EdgeData{
 		Timestamp: time.Now(),
@@ -181,9 +189,10 @@ func generateData() SDK.EdgeData {
 			t := SDK.EdgeTag{
 				DeviceID: deviceID,
 				TagName:  fmt.Sprintf("%s%d", "ATag", num+1),
-				Value:    rand.Float64(),
+				Value:    numF,
 			}
-		  //fmt.Println(rand.Float64())
+
+			//fmt.Println(rand.Float64())
 
 			msg.TagList = append(msg.TagList, t)
 		}
@@ -191,15 +200,16 @@ func generateData() SDK.EdgeData {
 			t := SDK.EdgeTag{
 				DeviceID: deviceID,
 				TagName:  fmt.Sprintf("%s%d", "DTag", num+1),
-				Value:    rand.Intn(7),
+				Value:    numI,
 			}
+			numI += 1
 			msg.TagList = append(msg.TagList, t)
 		}
 		for num := 0; num < textNum; num++ {
 			t := SDK.EdgeTag{
 				DeviceID: deviceID,
 				TagName:  fmt.Sprintf("%s%d", "TTag", num+1),
-				Value:    fmt.Sprintf("%s%d", "Test", num+1),
+				Value:    fmt.Sprintf("%s%d", "Test", numI),
 			}
 			msg.TagList = append(msg.TagList, t)
 		}
