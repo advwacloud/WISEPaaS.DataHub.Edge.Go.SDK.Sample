@@ -47,13 +47,15 @@ func main() {
 		status := generateDeviceStatus()
 		_ = agent.SendDeviceStatus(status)
 
-		timer = setInterval(func() {
-			data := generateData()
-			ok := agent.SendData(data)
-			if ok {
-				fmt.Println(data)
-			}
-		}, interval, true)
+		if timer == nil {
+			timer = setInterval(func() {
+				data := generateData()
+				ok := agent.SendData(data)
+				if ok {
+					fmt.Println(data)
+				}
+			}, interval, true)
+		}
 	})
 	agent.SetOnDisconnectHandler(func(a SDK.Agent) {
 		fmt.Println("disconnect successfully")

@@ -2,7 +2,7 @@ module github.com/advwacloud/WISEPaaS.DataHub.Edge.Go.SDK.Sample
 
 go 1.13
 
-//replace github.com/advwacloud/WISEPaaS.DataHub.Edge.Go.SDK => ../WISEPaaS.DataHub.Edge.Go.SDK // To use the local SDK
+replace github.com/advwacloud/WISEPaaS.DataHub.Edge.Go.SDK => ../WISEPaaS.DataHub.Edge.Go.SDK // To use the local SDK
 
 require (
 	github.com/advwacloud/WISEPaaS.DataHub.Edge.Go.SDK v0.0.0-20200807070017-dc6a6ab5cd9b
