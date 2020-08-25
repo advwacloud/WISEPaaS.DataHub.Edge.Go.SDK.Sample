@@ -12,8 +12,8 @@ func main() {
 
 	go func() {
 		for {
-			runtime.NumGoroutine()
-			// fmt.Printf("goroutine num = %d\n", NumGoroutine)
+			NumGoroutine := runtime.NumGoroutine()
+			fmt.Printf("goroutine num = %d\n", NumGoroutine)
 			time.Sleep(5 * time.Second)
 		}
 	}()
@@ -108,9 +108,9 @@ func generateNodeConfig() SDK.NodeConfig {
 
 func generateDeviceConfig(idx int) SDK.DeviceConfig {
 	var deviceID = fmt.Sprintf("%s%d", "Device", idx)
-	var analogNum = 3
-	var discreteNum = 2
-	var textNum = 1
+	var analogNum = 2
+	var discreteNum = 0
+	var textNum = 0
 
 	deviceConfig := SDK.NewDeviceConfig(deviceID)
 	deviceConfig.SetName(fmt.Sprintf("%s%d", "Device", idx))
@@ -183,9 +183,9 @@ func generateData() SDK.EdgeData {
 	}
 
 	for idx := 0; idx < deviceNum; idx++ {
-		analogNum := 3
-		discreteNum := 2
-		textNum := 1
+		analogNum := 2
+		discreteNum := 0
+		textNum := 0
 		deviceID := fmt.Sprintf("%s%d", "Device", idx+1)
 		for num := 0; num < analogNum; num++ {
 			t := SDK.EdgeTag{
