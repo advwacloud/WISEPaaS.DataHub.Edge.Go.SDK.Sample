@@ -164,6 +164,7 @@ func generateTextConfig(idx int) SDK.TextTagConfig {
 	config.SetDescription(fmt.Sprintf("%s %d", "TTag", idx))
 	config.SetReadOnly(false)
 	config.SetArraySize(0)
+	config.SetSendWhenValueChanged(true)
 
 	return config
 }
