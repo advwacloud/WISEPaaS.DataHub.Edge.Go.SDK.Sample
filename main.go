@@ -46,10 +46,8 @@ func main() {
 		if timer == nil {
 			timer = setInterval(func() {
 				data := generateData()
-				ok := agent.SendData(data)
-				if ok {
-					fmt.Println(data)
-				}
+				result := agent.SendData(data)
+				fmt.Println(result)
 			}, interval, true)
 		}
 	})
