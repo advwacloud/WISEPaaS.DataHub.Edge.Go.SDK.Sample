@@ -22,13 +22,13 @@ func main() {
 	quit := make(chan bool)
 
 	options := SDK.NewEdgeAgentOptions()
-  
-  options.DataRecover = true
+
+	options.DataRecover = true
 	options.NodeID = "6c3d9606-beaa-4862-8e7b-37563cb9744c"
 	options.ConnectType = SDK.ConnectType["DCCS"]
 	options.DCCS.Key = "459acec0a7d1dc0e9e40ba27afd8a5mx"
 	options.DCCS.URL = "https://api-dccs.wise-paas.com/"
-	
+
 	interval := 1
 	var timer chan bool = nil
 
@@ -43,13 +43,15 @@ func main() {
 		status := generateDeviceStatus()
 		_ = agent.SendDeviceStatus(status)
 
-		timer = setInterval(func() {
-			data := generateData()
-			ok := agent.SendData(data)
-			if ok {
-				fmt.Println(data)
-			}
-		}, interval, true)
+		if timer == nil {
+			timer = setInterval(func() {
+				data := generateData()
+				ok := agent.SendData(data)
+				if ok {
+					fmt.Println(data)
+				}
+			}, interval, true)
+		}
 	})
 	agent.SetOnDisconnectHandler(func(a SDK.Agent) {
 		fmt.Println("disconnect successfully")
@@ -170,6 +172,7 @@ func generateData() SDK.EdgeData {
 	deviceNum := 1
 	msg := SDK.EdgeData{
 		Timestamp: time.Now(),
+		//Timestamp: time.Date(2020, time.Month(10), 14, 16, 50, 33, 983, time.Local)	// customized time stamp format
 	}
 
 	for idx := 0; idx < deviceNum; idx++ {
@@ -183,7 +186,7 @@ func generateData() SDK.EdgeData {
 				TagName:  fmt.Sprintf("%s%d", "ATag", num+1),
 				Value:    rand.Float64(),
 			}
-		  //fmt.Println(rand.Float64())
+			//fmt.Println(rand.Float64())
 
 			msg.TagList = append(msg.TagList, t)
 		}
