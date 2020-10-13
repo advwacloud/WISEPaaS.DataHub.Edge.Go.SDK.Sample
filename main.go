@@ -172,6 +172,7 @@ func generateData() SDK.EdgeData {
 	deviceNum := 1
 	msg := SDK.EdgeData{
 		Timestamp: time.Now(),
+		//Timestamp: time.Date(2020, time.Month(10), 14, 16, 50, 33, 983, time.Local)	// customized time stamp format
 	}
 
 	for idx := 0; idx < deviceNum; idx++ {
