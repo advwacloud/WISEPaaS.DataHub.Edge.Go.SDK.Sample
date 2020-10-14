@@ -5,7 +5,7 @@
 *.so
 *.dylib
 .vscode
-go.sum
+go.sum*
 *.json
 *.sqlite
 
