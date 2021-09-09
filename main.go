@@ -24,10 +24,10 @@ func main() {
 	options := SDK.NewEdgeAgentOptions()
 
 	options.DataRecover = true
-	options.NodeID = "6c3d9606-beaa-4862-8e7b-37563cb9744c"
+	options.NodeID = "b9744e4f-6948-4341-a5c7-c6040771d8b6"
 	options.ConnectType = SDK.ConnectType["DCCS"]
-	options.DCCS.Key = "459acec0a7d1dc0e9e40ba27afd8a5mx"
-	options.DCCS.URL = "https://api-dccs.wise-paas.com/"
+	options.DCCS.Key = ""
+	options.DCCS.URL = "https://api-dccs-ensaas.sa.wise-paas.com/"
 
 	interval := 1
 	var timer chan bool = nil
@@ -56,7 +56,7 @@ func main() {
 	agent.SetOnDisconnectHandler(func(a SDK.Agent) {
 		fmt.Println("disconnect successfully")
 	})
-	agent.SetOnMessageReceiveHandler(func(args SDK.MessageReceivedEventArgs) {
+	agent.SetOnMessageReceiveHandler(func(args SDK.MessageReceivedEventArgs, a SDK.Agent) {
 		msgType := args.Type
 		message := args.Message
 		switch msgType {
